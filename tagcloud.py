@@ -99,8 +99,65 @@ for i in srtd :
 
 '''
 # create images from weighted tokens
-img = Image.new("L", (1000,500)) #-sketch in grey
-drw = ImageDraw.Draw(img) #-get a drawing context
+#img = Image.new("L", (1000,500)) #-sketch in grey
+#drw = ImageDraw.Draw(img) #-get a drawing context
+
+
+frequencies=srtd
+max_frequency = float(frequencies[0][1])
+
+# create images from weighted tokens
+img_grey = Image.new("L", (1000,500))
+draw = ImageDraw.Draw(img_grey)
+iimg_array = np.asarray(img_grey)
+
+font_sizes, positions, orientations, colors = [], [], [], []
+last_freq = 1
+max_font_size = 1000
+
+occupancy = IntegralOccupancyMap(height, width, boolean_mask)
+if len(srtd) == 1:
+# we only have one word. We make it big!
+    font_size = 20000
+font_size = 10000
+random_state = Random()
+font_path = ImageFont.truetype("FORTE.ttf")
+for word, freq in frequencies:
+    if freq==0:
+        continue
+    #scaling variable
+    rs=5
+    if rs != 0:
+        font_size = int(round((rs * (freq / float(last_freq))+ (1 - rs)) * font_size))
+    orientation = Image.ROTATE_90
+    tried_other_orientation = False
+    while True:
+        font = ImageFont.truetype(font_path, font_size)
+        transposed_font = ImageFont.TransposedFont(font, orientation=None)
+        # get size of resulting text
+        box_size = draw.textsize(word, font=transposed_font)    
+        result = occupancy.sample_position(box_size[1] + 2,box_size[0] + 2,random_state)
+    x, y = np.array(result) + 1
+    draw.text((y, x), word, fill="white", font=transposed_font)
+    positions.append((x, y))
+    orientations.append(orientation)
+    colors.append(self.color_func(word, font_size=font_size,position=(x, y),orientation=orientation,random_state=random_state,font_path=self.font_path))font_sizes.append(font_size)
+    if self.mask is None:
+        img_array = np.asarray(img_grey)
+    else:
+        img_array = np.asarray(img_grey) + boolean_mask
+    # recompute bottom right
+    # the order of the cumsum's is important for speed ?!
+    occupancy.update(img_array, x, y)
+    last_freq = freq
+
+layout  = list(zip(frequencies, font_sizes, positions,
+                        orientations, colors))
+
+
+
+
+
 ## assign font sizes
 
 
@@ -109,10 +166,10 @@ drw = ImageDraw.Draw(img) #-get a drawing context
 
 
 # draw text
-fnt = ImageFont.truetype("Freedom-10eM.ttf", size=37)
-drw.text((50,50), "check", font = fnt, fill="white")
+#fnt = ImageFont.truetype("Freedom-10eM.ttf", size=37)
+#drw.text((50,50), "check", font = fnt, fill="white")
 
-img.show()
+#img.show()
 
 
 
