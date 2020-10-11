@@ -5,7 +5,7 @@ implementation hints by https://github.com/amueller/word_cloud
                         https://github.com/jasondavies/d3-cloud
 
 '''
-
+import numpy as np
 import re
 
 from PIL import Image
@@ -32,7 +32,7 @@ def normalize_text(s):
 #---
 
 
-
+'''
 #---
 # get tokens from test doc
 toks = ""
@@ -87,36 +87,48 @@ if len(srtd) > max_words :
 	# ~ print(i)	
 
 
-# scale frequencies
+# scale frequencies to normalized weights in [0,1]
+maxw = srtd[0][1]**(1/2) 
+
 for i in range(0, len(srtd)) :
-	srtd[i] = [srtd[i][0], srtd[i][1]**(1/2)]
+	w = srtd[i][1]**(1/2) / maxw
+	srtd[i] = [srtd[i][0], w]
+	
 for i in srtd :
 	print(i)	
 	
 #---
-
-
-
 '''
+
+
+#---
 # create images from weighted tokens
-img = Image.new("L", (1000,500)) #-sketch in grey
-drw = ImageDraw.Draw(img) #-get a drawing context
-## assign font sizes
+wi = 1000
+hi = int(wi/2)
+img = Image.new("L", (wi,hi)) #-greyscale canvas
+arr = np.asarray(img)
+print("size: ", arr.size)
+print("dim: ", arr.shape)
+print(arr)
+'''
+drw = ImageDraw.Draw(img) #-get drawing context (pencil)
+
+fnt_sz = int(hi/4) #-init. max font size
+print(fnt_sz)
 
 
-# estimate canvas size
 
+# draw text; 
+fnt = ImageFont.truetype("Freedom-10eM.ttf", fnt_sz)
+# min box_sz = 5pt font ~ 20x5 pixels
+box_sz = drw.textsize("check", font=fnt) #-get w,h of tex
 
-
-# draw text
-fnt = ImageFont.truetype("Freedom-10eM.ttf", size=37)
-drw.text((50,50), "check", font = fnt, fill="white")
-
+drw.text((0,0), "check", font = fnt, fill="white")
 img.show()
-
+'''
 
 
 # place images onto canvas
-'''
+
 
 print("\nDONE!")
