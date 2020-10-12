@@ -4,7 +4,7 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from textwrap import wrap
 import random
-print("HEllo")
+
 #To check if pixels are available
 def check_if_possible(pixels,x_coordinate,y_coordinate,w,h):
     for i in range(y_coordinate,y_coordinate+h):
@@ -12,8 +12,13 @@ def check_if_possible(pixels,x_coordinate,y_coordinate,w,h):
             if pixels[i][j]==1:
                 return 0
     return 1
+            
 
-#set used pixels to 1    
+#set the used pixels
+def generate_random_color():
+    color=['blue','magenta','yellow','black','white','pink']
+    return random.choice(color)
+    
 def set_pixels(pixels,width,height,X,Y):
     for i in range(Y,Y+height+1):
         for j in range(X,X+width+1):
@@ -28,6 +33,7 @@ def get_x_and_y(mini,X,Y):
 
 #get width and height of the word
 def get_text_dimensions(text_string, font):
+    # https://stackoverflow.com/a/46220683/9263761
     ascent, descent = font.getmetrics()
 
     text_width = font.getmask(text_string).getbbox()[2]
@@ -57,6 +63,13 @@ with open("data.txt", 'r') as t :
 
 toks = toks.split()
 
+#checking for garbage letters and characters
+toks1=[]
+for i in toks:
+    if i.isalpha():
+        toks1.append(i)
+toks=toks1
+
 # remove stop words
 cut = []
 with open("stopwords.txt", 'r') as s :
@@ -67,6 +80,7 @@ payload = []
 for word in toks :
     if word not in cut :
         payload.append(word)
+
 
 
 # group tokens into n-grams
@@ -91,11 +105,14 @@ maximum=dct[0][1]
 for i in range(len(dct)):
     dct[i][1]=int((dct[i][1]*100)//maximum)
 
+
+
+
 #WordCloud
 if len(dct)<1:
     print("Enter a text with atleast one word")
-X=400
-Y=400
+X=800
+Y=800
 pixels=[[0 for _ in range(X)]for _ in range(Y)]
 txt=dct[0][0]
 font_size=dct[0][1]
@@ -103,15 +120,17 @@ fnt = ImageFont.truetype("times.ttf",font_size)
 w,h=get_text_dimensions(txt, fnt)
 img = Image.new('RGB', (X, Y), color = 'cyan')
 draw = ImageDraw.Draw(img)
-draw.text((X//2-1-w//2, Y//2-1-h//2),txt,font=fnt)
+draw.text((X//2-1-w//2, Y//2-1-h//2),txt,fill= generate_random_color(),font=fnt)
 pixels=set_pixels(pixels,w,h,X//2-1-w//2, Y//2-1-h//2)
 for i in range(1,len(dct)):
     flag=0
     txt=dct[i][0]
-    font_size=dct[i][1]
+    font_size=int((dct[i][1]*100)/maximum)   
+    if font_size<=10:
+        font_size=15
     fnt = ImageFont.truetype("times.ttf",font_size)
     w,h=get_text_dimensions(txt, fnt)
-	hit=0
+    hit=0
     while flag!=1:
         x_coordinate,y_coordinate=get_x_and_y(0,X,Y)
         if (x_coordinate+w)<X and (y_coordinate+h)<Y:
@@ -119,8 +138,8 @@ for i in range(1,len(dct)):
         if hit>1000:
             break
         hit+=1
-    draw.text((x_coordinate, y_coordinate),txt,font=fnt)
+        
+    draw.text((x_coordinate, y_coordinate),txt,fill= generate_random_color(),font=fnt)
     pixels=set_pixels(pixels,w,h,x_coordinate, y_coordinate)
-img.show()
-
-print("HEllo")
+print("                                             WORD CLOUD GENERTOR                           ")
+display(img)
