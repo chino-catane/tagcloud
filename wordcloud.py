@@ -128,7 +128,7 @@ txt=dct[0][0]
 font_size=dct[0][1]
 fnt = ImageFont.truetype("times.ttf",font_size)
 w,h=get_text_dimensions(txt, fnt)
-img = Image.new('RGB', (X, Y), color = 'magenta')
+img = Image.new('RGB', (X, Y), color = 'cyan')
 draw = ImageDraw.Draw(img)
 #transposed_font = ImageFont.TransposedFont(fnt, orientation=Image.ROTATE_90)
 draw.text((X//2-1-w//2, Y//2-1-h//2),txt,fill= generate_random_color(),font=fnt)
