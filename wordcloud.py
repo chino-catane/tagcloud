@@ -4,12 +4,13 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from textwrap import wrap
 import random
+import plotly.graph_objs as go
 
 #To check if pixels are available
 def check_if_possible(pixels,x_coordinate,y_coordinate,w,h):
     for i in range(y_coordinate,y_coordinate+h):
         for j in range(x_coordinate,x_coordinate+w):
-            if pixels[i][j]==1:
+            if pixels[i][j]!=-1:
                 return 0
     return 1
             
@@ -19,10 +20,10 @@ def generate_random_color():
     color=['blue','magenta','yellow','black','white','pink']
     return random.choice(color)
     
-def set_pixels(pixels,width,height,X,Y):
+def set_pixels(pixels,width,height,X,Y,k):
     for i in range(Y,Y+height+1):
         for j in range(X,X+width+1):
-            pixels[i][j]=1
+            pixels[i][j]=k
     return pixels
 
 #generate random x and y co-ordinates
@@ -105,23 +106,33 @@ maximum=dct[0][1]
 for i in range(len(dct)):
     dct[i][1]=int((dct[i][1]*100)//maximum)
 
+def check_if_possible_rotate(pixels,x_coordinate,y_coordinate,w,h):
+    for i in range(y_coordinate,y_coordinate+h):
+        for j in range(x_coordinate,x_coordinate+w):
+            if pixels[i][j]!=-1:
+                return 0
+    return 1
 
-
-
+def set_pixels_rotate(pixels,width,height,X,Y,k):
+    for i in range(Y,Y+height+1):
+        for j in range(X,X+width+1):
+            pixels[i][j]=k
+    return pixels
 #WordCloud
 if len(dct)<1:
     print("Enter a text with atleast one word")
-X=800
-Y=800
-pixels=[[0 for _ in range(X)]for _ in range(Y)]
+X=850
+Y=850
+pixels=[[-1 for _ in range(X)]for _ in range(Y)]
 txt=dct[0][0]
 font_size=dct[0][1]
 fnt = ImageFont.truetype("times.ttf",font_size)
 w,h=get_text_dimensions(txt, fnt)
 img = Image.new('RGB', (X, Y), color = 'cyan')
 draw = ImageDraw.Draw(img)
+#transposed_font = ImageFont.TransposedFont(fnt, orientation=Image.ROTATE_90)
 draw.text((X//2-1-w//2, Y//2-1-h//2),txt,fill= generate_random_color(),font=fnt)
-pixels=set_pixels(pixels,w,h,X//2-1-w//2, Y//2-1-h//2)
+pixels=set_pixels(pixels,w,h,X//2-1-w//2, Y//2-1-h//2,0)
 for i in range(1,len(dct)):
     flag=0
     txt=dct[i][0]
@@ -131,15 +142,32 @@ for i in range(1,len(dct)):
     fnt = ImageFont.truetype("times.ttf",font_size)
     w,h=get_text_dimensions(txt, fnt)
     hit=0
+    if i==2 or i==5 or i==7 or i==10 or i==20 or i==50 or i==80 or i==100:
+        fnt = ImageFont.TransposedFont(fnt, orientation=Image.ROTATE_90)
+        while flag!=1:
+            x_coordinate,y_coordinate=get_x_and_y(0,X,Y)
+            if (x_coordinate+h)<X and (y_coordinate+w)<Y:
+                flag=check_if_possible_rotate(pixels,x_coordinate,y_coordinate,h,w)
+            if hit>1000:
+                break
+            hit+=1
+        draw.text((x_coordinate, y_coordinate),txt,fill=generate_random_color() ,font=fnt)
+        pixels=set_pixels_rotate(pixels,h,w,x_coordinate, y_coordinate,i)
+        continue
     while flag!=1:
         x_coordinate,y_coordinate=get_x_and_y(0,X,Y)
+        x.append(x_coordinate)
+        y.append(y_coordinate)
         if (x_coordinate+w)<X and (y_coordinate+h)<Y:
             flag=check_if_possible(pixels,x_coordinate,y_coordinate,w,h)
         if hit>1000:
             break
         hit+=1
-        
-    draw.text((x_coordinate, y_coordinate),txt,fill= generate_random_color(),font=fnt)
-    pixels=set_pixels(pixels,w,h,x_coordinate, y_coordinate)
+    color=generate_random_color()
+    color_list.append(color)        
+    draw.text((x_coordinate, y_coordinate),txt,fill= color,font=fnt)
+    pixels=set_pixels(pixels,w,h,x_coordinate, y_coordinate,i)
+
+
 print("                                             WORD CLOUD GENERTOR                           ")
 display(img)
