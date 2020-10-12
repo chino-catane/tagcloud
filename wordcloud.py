@@ -160,10 +160,8 @@ for i in range(1,len(dct)):
             flag=check_if_possible(pixels,x_coordinate,y_coordinate,w,h)
         if hit>1000:
             break
-        hit+=1
-    color=generate_random_color()
-    color_list.append(color)        
-    draw.text((x_coordinate, y_coordinate),txt,fill= color,font=fnt)
+        hit+=1      
+    draw.text((x_coordinate, y_coordinate),txt,fill= generate_random_color(),font=fnt)
     pixels=set_pixels(pixels,w,h,x_coordinate, y_coordinate,i)
 
 
