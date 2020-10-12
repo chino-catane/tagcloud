@@ -156,8 +156,6 @@ for i in range(1,len(dct)):
         continue
     while flag!=1:
         x_coordinate,y_coordinate=get_x_and_y(0,X,Y)
-        x.append(x_coordinate)
-        y.append(y_coordinate)
         if (x_coordinate+w)<X and (y_coordinate+h)<Y:
             flag=check_if_possible(pixels,x_coordinate,y_coordinate,w,h)
         if hit>1000:
@@ -169,6 +167,6 @@ for i in range(1,len(dct)):
     pixels=set_pixels(pixels,w,h,x_coordinate, y_coordinate,i)
 
 
-print("                                             WORD CLOUD GENERTOR                           ")
-#display(img)# for jupyter Notebooks
+print("***********************************          WORD CLOUD GENERTOR      ****************************************")
+display(img)# for jupyter Notebooks
 #img.show() # for other IDE's
