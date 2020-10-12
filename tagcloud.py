@@ -1,183 +1,244 @@
-'''
-algorithm by http://static.mrfeinberg.com/bv_ch03.pdf 
-
-implementation hints by https://github.com/amueller/word_cloud
-                        https://github.com/jasondavies/d3-cloud
-
-'''
-import numpy as np
+import plotly.graph_objs as go
+import random
 import re
 
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
-# ~ from PIL import ImageColor
-# ~ from PIL import ImageFilter
+from textwrap import wrap
 
 
 
-#---
-def normalize_text(s):
-    s = s.lower()
+class TagCloud(object) :
+
+	def __init__(
+		self, wide=850, hi=850, fnt_scalar=100, ftype="times.ttf",
+		max_font=100, min_font=10, ngrams=1, tfile="data.txt"
+		) :
+		
+		self.wide = wide
+		self.hi = hi
+		
+		self.colors = ['white','red','orange','yellow',
+			'green','blue','indigo','violet']
+		self.freq_lst = []
+		self.fnt_scalar = fnt_scalar
+		self.ftype = ftype
+		self.layout = [] #-[grams, fsizes, ftypes, pos, dims, fcolors] 
+		self.max_font = max_font
+		self.min_font = min_font
+		self.ngrams = ngrams
+		self.pixel_map = [[-1 for _ in range(self.wide)] for _ in range(self.hi)]
+		self.tfile = tfile
+
+
+	def normalize_text(self, s):
+		s = s.lower()
+		
+		# remove punctuation that is not word-internal (e.g., hyphens, apostrophes)
+		s = re.sub('\s\W',' ',s)
+		s = re.sub('\W\s',' ',s)
+		s = re.sub(r'[?()]', '', s)
+		
+		# make sure we didn't introduce any double spaces
+		s = re.sub('\s+',' ',s)
+		
+		return s
+
+
+	def generate_grams(self) : 
+		# get tokens from text file
+		toks = ""
+		with open(self.tfile, 'r') as t :
+			for line in t.readlines() :
+				toks = toks + self.normalize_text(line.rstrip().strip(u'\u200b')) + ' ' 
+
+		toks = toks.split()
+
+
+		# remove stop words
+		cut = []
+		with open("stopwords.txt", 'r') as s :
+			for line in s :
+				cut.append(line.rstrip())
+
+		payload = []
+		for word in toks :
+			if word not in cut :
+				payload.append(word)
+
+
+		# group tokens into n-grams
+		n = self.ngrams
+		stop_idx = len(payload)-1 - (n-1) #-final n-gram index
+		grams = []
+		for i in range(0, stop_idx+1) :
+			g = payload[i : i+n]
+			grams.append(' '.join(g))
+
+
+		# make frequency dictionary
+		dct = {}
+		for g in grams :
+			if g not in dct :
+				dct.update({g : 1})
+			else :
+				dct[g] += 1	
+			
+			
+		# sort and scale freq 
+		dct = list([key,value] for key,value in dct.items())
+		dct.sort(key=lambda x : x[1], reverse=True)
+				
+		max_freq = dct[0][1]  
+	
+		for i in range(len(dct)):
+			dct[i][1]=int((dct[i][1]*self.fnt_scalar) // max_freq)
+			
+		self.freq_lst = dct
+	
+
+	def set_pixels(self, width, height, x, y, k):
+		for i in range(y, y+height+1) :
+			if i >= self.hi :
+				break 
+			for j in range(x, x+width+1) :
+				if j >= self.wide :
+					break
+				self.pixel_map[i][j] = k 
+
+
+	def check_pixel_map(self, x, y, w, h):
+		for i in range(y, y+h):
+			for j in range(x ,x+w):
+				if self.pixel_map[i][j] != -1 :
+					return 0
+		return 1		
+
+
+	def generate_cloud(self) :
+		'''
+		Returns
+		-------
+		cloud layout as [ ]
+		
+		'''
+		#self.layout parameters
+		grams = []
+		fsizes = []
+		ftypes = []
+		pos = []
+		dims = []
+		fcolors = []
+		
+		self.generate_grams()
+		
+		if len(self.freq_lst) < 1 :
+			print("ERROR: no text")
+
+		# layout first gram
+		txt = self.freq_lst[0][0]
+		font_size = self.freq_lst[0][1]
+		fnt = ImageFont.truetype(self.ftype, font_size)
+		
+		# call up a canvas and pen
+		img = Image.new('RGB', (self.wide, self.hi))		
+		draw = ImageDraw.Draw(img)		
+
+		(w,h) = draw.textsize(txt, font=fnt)
+		x = self.wide//2 - 1 - w//2
+		y = self.hi//2 - 1 - h//2
+		color = random.choice(self.colors)
+		draw.text((x, y), txt, fill=color, font=fnt)
+		
+		self.set_pixels(w, h, x, y, 0)
+		
+		# collect layout info
+		grams.append(txt) #-layout info
+		fsizes.append(font_size) #-layout info
+		ftypes.append(fnt) #-layout info
+		dims.append((w,h)) #-layout info
+		pos.append((x,y)) #-layout info
+		fcolors.append(color) #-layout info
+
+		# place all other grams
+		for i in range(1, len(self.freq_lst)):
+			flag = 0
+			txt = self.freq_lst[i][0]
+			
+			font_size = int((self.freq_lst[i][1]*100) / self.max_font)  
+			if font_size <= self.min_font:
+				font_size = 15
+			
+			fnt = ImageFont.truetype(self.ftype, font_size)
+			(w,h) = draw.textsize(txt, font=fnt)
+			
+			hit = 0
+			# vertical layouts
+		# ~ if i==2 or i==5 or i==7 or i==10 or i==20 or i==50 or i==80 or i==100 :
+			# ~ fnt = ImageFont.TransposedFont(fnt, orientation=Image.ROTATE_90)
+			# ~ while flag != 1 :
+				# ~ x_coordinate,y_coordinate = get_x_and_y(0,X,Y)
+				# ~ if (x_coordinate+h)<X and (y_coordinate+w)<Y :
+					# ~ flag = check_if_possible_rotate(pixels, x_coordinate, y_coordinate, h, w)
+				# ~ if hit > 1000:
+					# ~ break
+				# ~ hit += 1
+			# ~ draw.text((x_coordinate, y_coordinate),txt,fill=generate_random_color() ,font=fnt)
+			# ~ pixels=set_pixels_rotate(pixels,h,w,x_coordinate, y_coordinate,i)
+			# ~ continue
+        
+			while flag != 1 :
+				x = random.randint(0, self.wide-1)
+				y = random.randint(0, self.hi-1)
+				if (x+w)<self.wide and (y+h)<self.hi :
+					flag = self.check_pixel_map(x, y, w, h)
+
+				if hit > 1000:
+					break
+				hit += 1      
     
-    # remove punctuation that is not word-internal (e.g., hyphens, apostrophes)
-    s = re.sub('\s\W',' ',s)
-    s = re.sub('\W\s',' ',s)
-    s = re.sub(r'[?()]', '', s)
-    
-    # make sure we didn't introduce any double spaces
-    s = re.sub('\s+',' ',s)
-    
-    return s
-#---
+			if flag is 1 :
+				color = random.choice(self.colors)
+				draw.text((x, y), txt, fill=color, font=fnt)
+				self.set_pixels(w, h, x, y, i)
+				
+				# collect layout info only if placement is successful
+				grams.append(txt) #-layout info
+				fsizes.append(font_size) #-layout info
+				ftypes.append(fnt) #-layout info
+				dims.append((w,h)) #-layout info
+				pos.append((x,y)) #-layout info
+				fcolors.append(color) #-layout info	
+	
+		self.layout = list(zip(grams, fsizes, ftypes, dims, pos, fcolors))
 
+	def print_layout(self) :
+		for l in self.layout :
+			print(l)
+		print("\n\n")	
+
+
+	def to_image(self) :
+		# call up a canvas and pen
+		img = Image.new('RGB', (self.wide, self.hi))		
+		draw = ImageDraw.Draw(img)	
+		#-[grams, fsizes, ftypes, pos, dims, fcolors] 
+		for (txt, size, fnt, (width, height), (x,y), color) in self.layout :
+			draw.text((x, y), txt, fill=color, font=fnt)
+		
+		return img
+		
 
 '''
-#---
-# get tokens from test doc
-toks = ""
-with open("doin-time.txt", 'r') as t :
-	for line in t.readlines() :
-		toks = toks + normalize_text(line.rstrip().strip(u'\u200b')) + ' ' 
+GRAVEYARD
+---------
 
-toks = toks.split()
+if __name__ == "__main__" :
+	tc = TagCloud(fnt_scalar=150, ngrams=1, tfile="doin-time.txt")
+	tc.generate_cloud()
+	tc.print_freq_lst()	
 
+	print("\nDONE!")
 
-# remove stop words
-cut = []
-with open("stopwords.txt", 'r') as s :
-	for line in s :
-		cut.append(line.rstrip())
-
-payload = []
-for word in toks :
-	if word not in cut :
-		payload.append(word)
-
-
-# group tokens into n-grams
-n = 1
-stop_idx = len(payload)-1 - (n-1) #-final n-gram index
-grams = []
-for i in range(0, stop_idx+1) :
-	g = payload[i : i+n]
-	grams.append(' '.join(g))
-# ~ for g in grams :
-	# ~ print(g)
-
-
-# make frequency dictionary
-dct = {}
-for g in grams :
-	if g not in dct :
-		dct.update({g : 1})
-	else :
-		dct[g] += 1
-# ~ for k, v in dct.items() :
-	# ~ print(k, ":", v)
-	
-	
-# trim freq dict into ordered list
-max_words = 197	
-srtd = sorted(dct.items(), key=lambda x : x[1], reverse = True) 
-
-if len(srtd) > max_words :
-	srtd = srtd[ :max_words]
-# ~ for i in srtd :
-	# ~ print(i)	
-
-
-# scale frequencies to normalized weights in [0,1]
-maxw = srtd[0][1]**(1/2) 
-
-for i in range(0, len(srtd)) :
-	w = srtd[i][1]**(1/2) / maxw
-	srtd[i] = [srtd[i][0], w]
-	
-for i in srtd :
-	print(i)	
-	
-#---
 '''
-
-
-#---
-# create images from weighted tokens
-wi = 1000
-hi = int(wi/2)
-img = Image.new("L", (wi,hi)) #-greyscale canvas
-arr = np.asarray(img)
-print("size: ", arr.size)
-print("dim: ", arr.shape)
-print(arr)
-'''
-drw = ImageDraw.Draw(img) #-get drawing context (pencil)
-draw = ImageDraw.Draw(img_grey)
-iimg_array = np.asarray(img_grey)
-
-font_sizes, positions, orientations, colors = [], [], [], []
-last_freq = 1
-max_font_size = 1000
-
-occupancy = IntegralOccupancyMap(height, width, boolean_mask)
-if len(srtd) == 1:
-# we only have one word. We make it big!
-    font_size = 20000
-font_size = 10000
-random_state = Random()
-font_path = ImageFont.truetype("FORTE.ttf")
-for word, freq in frequencies:
-    if freq==0:
-        continue
-    #scaling variable
-    rs=5
-    if rs != 0:
-        font_size = int(round((rs * (freq / float(last_freq))+ (1 - rs)) * font_size))
-    orientation = Image.ROTATE_90
-    tried_other_orientation = False
-    while True:
-        font = ImageFont.truetype(font_path, font_size)
-        transposed_font = ImageFont.TransposedFont(font, orientation=None)
-        # get size of resulting text
-        box_size = draw.textsize(word, font=transposed_font)    
-        result = occupancy.sample_position(box_size[1] + 2,box_size[0] + 2,random_state)
-    x, y = np.array(result) + 1
-    draw.text((y, x), word, fill="white", font=transposed_font)
-    positions.append((x, y))
-    orientations.append(orientation)
-    colors.append(self.color_func(word, font_size=font_size,position=(x, y),orientation=orientation,random_state=random_state,font_path=self.font_path))font_sizes.append(font_size)
-    if self.mask is None:
-        img_array = np.asarray(img_grey)
-    else:
-        img_array = np.asarray(img_grey) + boolean_mask
-    # recompute bottom right
-    # the order of the cumsum's is important for speed ?!
-    occupancy.update(img_array, x, y)
-    last_freq = freq
-
-layout  = list(zip(frequencies, font_sizes, positions,
-                        orientations, colors))
-
-
-
-
-
-
-fnt_sz = int(hi/4) #-init. max font size
-print(fnt_sz)
-
-
-
-# draw text; 
-fnt = ImageFont.truetype("Freedom-10eM.ttf", fnt_sz)
-# min box_sz = 5pt font ~ 20x5 pixels
-box_sz = drw.textsize("check", font=fnt) #-get w,h of tex
-
-drw.text((0,0), "check", font = fnt, fill="white")
-'''
-
-
-# place images onto canvas
-
-
-print("\nDONE!")
