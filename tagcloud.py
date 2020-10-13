@@ -29,6 +29,7 @@ class TagCloud(object) :
 		self.min_font = min_font
 		self.ngrams = ngrams
 		self.pixel_map = [[-1 for _ in range(self.wide)] for _ in range(self.hi)]
+		self.raw_freqs = [] #-bad workaround!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		self.tfile = tfile
 
 
@@ -93,6 +94,7 @@ class TagCloud(object) :
 		max_freq = dct[0][1]  
 	
 		for i in range(len(dct)):
+			self.raw_freqs.append(dct[i][1]) #-lazy workaround!!!!!!!!!!!!!
 			dct[i][1]=int((dct[i][1]*self.fnt_scalar) // max_freq)
 			
 		self.freq_lst = dct
@@ -120,7 +122,6 @@ class TagCloud(object) :
 		'''
 		Returns
 		-------
-		cloud layout as [ ]
 		
 		'''
 		#self.layout parameters
@@ -211,7 +212,8 @@ class TagCloud(object) :
 				pos.append((x,y)) #-layout info
 				fcolors.append(color) #-layout info	
 	
-		self.layout = list(zip(grams, fsizes, ftypes, dims, pos, fcolors))
+		self.layout = list(zip(grams, self.raw_freqs, fsizes, 
+			ftypes, dims, pos, fcolors))
 
 	def print_layout(self) :
 		for l in self.layout :
@@ -224,7 +226,7 @@ class TagCloud(object) :
 		img = Image.new('RGB', (self.wide, self.hi))		
 		draw = ImageDraw.Draw(img)	
 		#-[grams, fsizes, ftypes, pos, dims, fcolors] 
-		for (txt, size, fnt, (width, height), (x,y), color) in self.layout :
+		for (txt, freqs, size, fnt, (width, height), (x,y), color) in self.layout :
 			draw.text((x, y), txt, fill=color, font=fnt)
 		
 		return img
