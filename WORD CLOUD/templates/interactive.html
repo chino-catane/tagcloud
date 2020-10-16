@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+<h2>Interactive Data Visualization</h2>
+<p>Click on the word to direct to Wikipedia page:</p>
+
+<img src="{{url_for('static', filename='img.jpeg')}}" alt="Workplace" usemap="#workmap" width="800" height="800">
+
+<map name="workmap" id="workmap">
+  <!--<area shape="rect" coords="316,353,483,446" alt="Computer" href="https://en.wikipedia.org/wiki/Visualization" target="_blank">https://en.wikipedia.org/wiki/Visualization>
+  <area shape="rect" coords="3,41,789,183" alt="Computer" href="https://en.wikipedia.org/wiki/Visualization">
+  <area shape="rect" coords="489,439,670,499" alt="Computer" href="https://en.wikipedia.org/wiki/graphics">
+  <area shape="rect" coords="95,436,150,447" alt="Computer" href="https://en.wikipedia.org/wiki/common">
+  !-->
+</map>
+</body>
+<script>
+
+fetch('/send')
+    .then(function (response) {
+        return response.json(); 
+    })
+    .then(function (layout) {
+        
+		var p=document.getElementById("workmap")
+for (var i=0;i<layout.length;i++)
+{
+	var area=document.createElement("area");
+	area.setAttribute("shape","rect");
+	area.setAttribute("coords",""+layout[i][0]+","+layout[i][1]+","+layout[i][2]+","+layout[i][3]);
+	area.setAttribute("alt",layout[i][4])
+	area.setAttribute("href","https://en.wikipedia.org/wiki/"+layout[i][4]);
+	area.setAttribute("target","_blank")
+	p.appendChild(area)
+}
+		});
+//var a=[[316,353,483,446,"data"],[3,41,789,183,"visualization"],[489,439,670,499,"graphics"],[95,436,150,447,"common"]]
+
+
+</script>
+</html>"
