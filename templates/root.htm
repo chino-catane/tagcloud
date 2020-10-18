@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://unpkg.com/konva@7.1.3/konva.min.js"></script>
+    <style>
+    .container {
+      position : absolute;
+      background : rgba(255, 255, 255, 0);
+    }
+    .ghost {
+      position: absolute;
+      background : rgba(255, 255, 255, 0);
+    }
+    </style>
+    {% block javascript %}
+    <script>
+    const MSG_HEIGHT = 50;
+    const CDIM = JSON.parse({{ cdim | tojson }});
+    //
+    function get_width() { return CDIM[0]; }
+    function get_height() { return CDIM[1]; }
+    //hover message
+    function write_msg(msg) {
+      text.text(msg);
+      layer.draw();
+    }
+    //build tagcloud
+    function draw() {
+        var width = CDIM[0] +'';
+        var height = CDIM[1] +'';
+        //ghost image map
+        var imap = document.getElementById("ghost_map");        
+        //real canvas
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("id", "pad");
+        canvas.setAttribute("width", width);
+        canvas.setAttribute("height", height);
+        canvas.setAttribute("style","border:2px solid #d3d3d3;position:absolute;top:0px;left:0px");
+
+        document.getElementById("container").appendChild(canvas);
+        //configure pen
+        var pad = document.getElementById("pad");
+        var pen = pad.getContext("2d");
+        pen.textAlign = "left";
+        pen.textBaseline = "top";
+        var font = "Times";
+        pen.fillStyle = "black"
+        pen.fillRect(0, 0, canvas.width, canvas.height)
+        //
+        var grams = JSON.parse({{ grams | tojson }});
+        for(var i = 0; i < grams.length; i++) {
+            //draw real text
+            var txt = grams[i]["txt"];
+            var size = grams[i]["font_size"] +'';
+            pen.font = size + "px " + font;
+            var x = grams[i]["pos"][0];
+            var y = grams[i]["pos"][1];
+            pen.fillStyle = grams[i]["color"]
+            pen.fillText(grams[i]["txt"], x, y);
+            //place image map elements
+            var w = grams[i]["dim"][0];
+            var h = grams[i]["dim"][1];
+            var x2 = x + w;
+            var y2 = y + h;
+            var empty_rect = document.createElement("area");
+            empty_rect.setAttribute("shape", "rect");
+            empty_rect.setAttribute("coords", x+','+y+','+x2+','+y2);
+            empty_rect.setAttribute("alt", txt)
+            var info = txt+"\nfreq: "+grams[i]["freq"]+"\nlength: "+grams[i]["len"];
+            empty_rect.setAttribute("title", info)
+            empty_rect.setAttribute("href","https://en.wikipedia.org/wiki/"+txt);
+            empty_rect.setAttribute("target", "_blank");
+            imap.appendChild(empty_rect); 
+        }
+    }
+    </script>
+    {% endblock %}
+</head>
+
+<body onload="draw()">
+    <div class="container" id="container"></div>
+    <div class="ghost" id="ghost">
+        <map name="ghost_map" id="ghost_map">
+        <img src="{{url_for('static', filename='ghost.png')}}" alt="image map" usemap="#ghost_map" width=get_width()+'' height=get_height()+'' style="opacity:0.0;filter:alpha(opacity=0);">
+    </div>    
+</body>
+</html>
