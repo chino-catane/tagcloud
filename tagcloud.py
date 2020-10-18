@@ -22,8 +22,9 @@ def a_len(word) :
 
 class TagCloud(object) :
 
-    def __init__(self,wide=850,hi=850,ftype="times.ttf",max_font=100, 
-                 min_font=10,ngrams=1,tfile="data.txt",grey=False) :
+    def __init__(self,wide=900,hi=900,ftype="times.ttf",grey=False,
+                 max_font=100,min_font=10,max_grams=200,ngrams=1,
+                 tfile="data.txt",) :
         '''docstring'''
         self._wide = wide
         self._hi = hi
@@ -37,6 +38,7 @@ class TagCloud(object) :
         self._lens = []
         self._max_font = max_font
         self._min_font = min_font
+        self._max_grams = max_grams
         self._ngrams = ngrams
         self._pixel_map = [[-1 for _ in range(self._wide)] 
                          for _ in range(self._hi)]
@@ -90,6 +92,8 @@ class TagCloud(object) :
                 dct[p][0] += 1
         #        
         srtd = sorted(dct.items(), key=lambda x : x[1], reverse=True)
+        if len(srtd) > self._max_grams :
+            srtd = srtd[:self._max_grams]
         # scale frequencies and populate layout lists
         max_freq = srtd[0][1][0]
         for i in srtd :
@@ -207,7 +211,8 @@ class TagCloud(object) :
 
 
 # generate tag cloud layout
-tc = TagCloud(max_font=150, ngrams=1, tfile="doin-time.txt", grey=False)
+tc = TagCloud(grey=False, max_font=150, max_grams=10, ngrams=1,
+              tfile="doin-time.txt")
 tc.generate_cloud()
 tc.to_image().show()
 # serialize layout 
