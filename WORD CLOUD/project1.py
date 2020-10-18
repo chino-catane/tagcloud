@@ -123,11 +123,11 @@ def set_pixels_rotate(pixels,width,height,X,Y,k):
 #WordCloud
 if len(dct)<1:
     print("Enter a text with atleast one word")
-X=900
-Y=900
+X=1000
+Y=1000
 pixels=[[-1 for _ in range(X)]for _ in range(Y)]
 txt=dct[0][0]
-font_size=dct[0][1]*100//maximum
+font_size=100
 layout=[[0 for _ in range(6)]for _ in range(len(dct))]
 fnt = ImageFont.truetype("FORTE.ttf",font_size)
 w,h=get_text_dimensions(txt, fnt)
@@ -145,15 +145,15 @@ pixels=set_pixels(pixels,w,h,X//2-1-w//2, Y//2-1-h//2,0)
 for i in range(1,len(dct)):
     flag=0
     txt=dct[i][0]
-    font_size=dct[i][1]*100//maximum
+    font_size=dct[i][1]
     #font_size=10*dct[i][1]+25
-    if font_size<=10:
-        font_size=15
+    if font_size<=25:
+        font_size=font_size+15
     fnt = ImageFont.truetype("FORTE.ttf",font_size)
     w,h=get_text_dimensions(txt, fnt)
     hit=0
     flag=0
-    if i==2 or i==5 or i==7 or i==10 or i==20 or i==50 or i==80 or i==100:
+    if i%4==0:
         fnt = ImageFont.TransposedFont(fnt, orientation=Image.ROTATE_90)
         while flag!=1:
             x_coordinate,y_coordinate=get_x_and_y(0,X,Y)
