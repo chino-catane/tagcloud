@@ -27,8 +27,8 @@ class TagCloud(object) :
         '''docstring'''
         self._wide = wide
         self._hi = hi
-        self._colors = ['white','red','orange','yellow',
-                      'green','blue','indigo','violet']
+        self._colors = ['red','orange', 'green', 'blue', 'indigo', 
+                        'violet', 'magenta', 'grey']
         self._freqs = []
         self._ftype = ftype
         self._grams = []
@@ -50,7 +50,7 @@ class TagCloud(object) :
         # (e.g., hyphens, apostrophes)
         s = re.sub('\s\W',' ',s)
         s = re.sub('\W\s',' ',s)
-        s = re.sub(r'[?()]', '', s)
+        s = re.sub(r"[\(\[].*?[\)\]]", '', s)
         # make sure we didn't introduce any double spaces
         s = re.sub('\s+',' ',s)
         return s
@@ -207,7 +207,7 @@ class TagCloud(object) :
 
 
 # generate tag cloud layout
-tc = TagCloud(max_font=400, ngrams=1, tfile="jay.txt", grey=False)
+tc = TagCloud(max_font=150, ngrams=1, tfile="doin-time.txt", grey=False)
 tc.generate_cloud()
 tc.to_image().show()
 # serialize layout 
