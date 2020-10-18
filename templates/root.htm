@@ -1,17 +1,57 @@
 <!DOCTYPE html>
 <html>
+<style>
+div.heading1{
+	text-align: center;
+	color: White;
+	text-shadow: 2px 2px 4px #000000;
+	height: 100px;
+	weight: 1000px;
+	background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1));
+	background-repeat: None
+	background-size: 957px 100px
+}
+img.a{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border:5px solid #555;
+}
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+.column {
+  float: left;
+  width: 25%;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+@media screen and (max-width: 650px) {
+  .column {
+    width: 100%;
+    display: block;
+  }
+}
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+.container {
+  padding: 0 16px;
+}
+.container::after, .row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+body{
+	background-color: Antique White;
+}
+</style>
+
 <head>
-    <script src="https://unpkg.com/konva@7.1.3/konva.min.js"></script>
-    <style>
-    .container {
-      position : absolute;
-      background : rgba(255, 255, 255, 0);
-    }
-    .ghost {
-      position: absolute;
-      background : rgba(255, 255, 255, 0);
-    }
-    </style>
     {% block javascript %}
     <script>
     const MSG_HEIGHT = 50;
@@ -19,58 +59,30 @@
     //
     function get_width() { return CDIM[0]; }
     function get_height() { return CDIM[1]; }
-    //hover message
-    function write_msg(msg) {
-      text.text(msg);
-      layer.draw();
-    }
     //build tagcloud
     function draw() {
         var width = CDIM[0] +'';
         var height = CDIM[1] +'';
-        //ghost image map
-        var imap = document.getElementById("ghost_map");        
-        //real canvas
-        var canvas = document.createElement("canvas");
-        canvas.setAttribute("id", "pad");
-        canvas.setAttribute("width", width);
-        canvas.setAttribute("height", height);
-        canvas.setAttribute("style","border:2px solid #d3d3d3;position:absolute;top:0px;left:0px");
-
-        document.getElementById("container").appendChild(canvas);
-        //configure pen
-        var pad = document.getElementById("pad");
-        var pen = pad.getContext("2d");
-        pen.textAlign = "left";
-        pen.textBaseline = "top";
-        var font = "Times";
-        //pen.fillStyle = "black"
-        //pen.fillRect(0, 0, canvas.width, canvas.height)
-        //
+        //image map
+        var imap = document.getElementById("image_map");
         var grams = JSON.parse({{ grams | tojson }});
         for(var i = 0; i < grams.length; i++) {
-            //draw real text
-            var txt = grams[i]["txt"];
-            var size = grams[i]["font_size"] +'';
-            pen.font = size + "px " + font;
+            var txt = grams[i]["txt"]
             var x = grams[i]["pos"][0];
             var y = grams[i]["pos"][1];
-            pen.fillStyle = grams[i]["color"]
-            pen.fillText(grams[i]["txt"], x, y);
-            //place image map elements
             var w = grams[i]["dim"][0];
             var h = grams[i]["dim"][1];
             var x2 = x + w;
             var y2 = y + h;
-            var empty_rect = document.createElement("area");
-            empty_rect.setAttribute("shape", "rect");
-            empty_rect.setAttribute("coords", x+','+y+','+x2+','+y2);
-            empty_rect.setAttribute("alt", txt)
+            var box = document.createElement("area");
+            box.setAttribute("shape", "rect");
+            box.setAttribute("coords", x+','+y+','+x2+','+y2);
+            box.setAttribute("alt", txt)
             var info = txt+"\nfreq: "+grams[i]["freq"]+"\nlength: "+grams[i]["len"];
-            empty_rect.setAttribute("title", info)
-            empty_rect.setAttribute("href","https://en.wikipedia.org/wiki/"+txt);
-            empty_rect.setAttribute("target", "_blank");
-            imap.appendChild(empty_rect); 
+            box.setAttribute("title", info)
+            box.setAttribute("href","https://en.wikipedia.org/wiki/"+txt);
+            box.setAttribute("target", "_blank");
+            imap.appendChild(box);
         }
     }
     </script>
@@ -78,10 +90,50 @@
 </head>
 
 <body onload="draw()">
-    <div class="container" id="container"></div>
-    <div class="ghost" id="ghost">
-        <map name="ghost_map" id="ghost_map">
-        <img src="{{url_for('static', filename='ghost.png')}}" alt="image map" usemap="#ghost_map" width=get_width()+'' height=get_height()+'' style="opacity:0.0;filter:alpha(opacity=0);">
-    </div>    
+    <div class="heading1">
+        <h1>Interactive Word Cloud</h1>
+        <p>Click on a word to redirect to the corresponding Wikipedia page</p>
+    </div>
+    <br>
+    <br>
+
+    <img src="{{url_for('static', filename='img.jpeg')}}" alt="image map" usemap="#image_map" width=get_width()+'' height=get_height()+''>
+    <map name="image_map" id="image_map">
+
+    <p style="font-family:Times New Roman;font-size:20px">
+        Technologies used: Python, JavaScript, HTML, CSS
+    </p>
+    <p style="font-family:Times New Roman;font-size:20px">
+        Thank you for checking out our Word Cloud :)
+    </p>
+    <p style="font-family:Arial Black;font-size:20px">Our Team:</p>
+    <div class="row">
+      <div class="column">
+        <div class="card">
+          <img src="{{url_for('static', filename='Chino.png')}}" alt="Chino" style="width:50%">
+          <div class="container">
+            <h2>Luis(Chino) Catane</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="column">
+        <div class="card">
+          <img src="{{url_for('static', filename='Sean.jpg')}}" alt="Sean" style="width:50%" >
+          <div class="container">
+            <h2>Sean Marcus Pereira</h2>
+          </div>
+        </div>
+      </div>
+
+      <div class="column">
+        <div class="card">
+          <img src="{{url_for('static', filename='Sushmitha.jpg')}}" alt="Sushmitha" style="width:50%">
+          <div class="container">
+            <h2>Sushmitha Pasala</h2>
+          </div>
+        </div>
+      </div>
+
 </body>
 </html>

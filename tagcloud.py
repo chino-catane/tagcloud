@@ -1,5 +1,6 @@
 import copy as cp
 import json
+import os
 import random
 import re
 
@@ -22,7 +23,7 @@ def a_len(word) :
 
 class TagCloud(object) :
 
-    def __init__(self,wide=900,hi=900,ftype="times.ttf",grey=False,
+    def __init__(self,wide=900,hi=900,ftype="forte.ttf",grey=False,
                  max_font=100,min_font=10,max_grams=200,ngrams=1,
                  tfile="data.txt",) :
         '''docstring'''
@@ -211,10 +212,10 @@ class TagCloud(object) :
 
 
 # generate tag cloud layout
-tc = TagCloud(grey=False, max_font=150, max_grams=10, ngrams=1,
+tc = TagCloud(grey=False, max_font=150, max_grams=200, ngrams=1,
               tfile="doin-time.txt")
 tc.generate_cloud()
-tc.to_image().show()
+tc.to_image().save(os.getcwd()+"/static/img.jpeg")
 # serialize layout 
 cdim = json.dumps((tc._wide, tc._hi))
 grams = json.dumps(tc._layout)
