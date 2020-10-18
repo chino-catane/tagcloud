@@ -33,26 +33,19 @@ html {
   padding: 0 8px;
 }
 
-@media screen and (max-width: 650px) {
-  .column {
-    width: 100%;
-    display: block;
-  }
-}
-
 .card {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
-.container {
+.container1 {
   padding: 0 16px;
 }
 
-.container::after, .row::after {
+<!--.container1::after, .row::after {
   content: "";
   clear: both;
   display: table;
-}
+}!-->
 
 body{
 	background-color: Antique White;
@@ -85,7 +78,7 @@ Our Team:
   <div class="column">
     <div class="card">
       <img src="{{url_for('static', filename='Chino.png')}}" alt="Chino" style="width:50%">
-      <div class="container">
+      <div class="container1">
         <h2>Luis(Chino) Catane</h2>
  
       </div>
@@ -95,7 +88,7 @@ Our Team:
   <div class="column">
     <div class="card">
       <img src="{{url_for('static', filename='Sean.jpg')}}" alt="Sean" style="width:50%" >
-      <div class="container">
+      <div class="container1">
         <h2>Sean Marcus Pereira</h2>
      
       </div>
@@ -105,7 +98,7 @@ Our Team:
   <div class="column">
     <div class="card">
       <img src="{{url_for('static', filename='Sushmitha.jpg')}}" alt="Sushmitha" style="width:50%">
-      <div class="container">
+      <div class="container1">
         <h2>Sushmitha Pasala</h2>
         
     </div>
@@ -133,13 +126,6 @@ for (var i=0;i<layout.length;i++)
 	p.appendChild(area)
 }
 		});
-$(".a").click(function() {
-  var animation = $(this).attr("data-animation");
-  $(this).addClass(animation).delay(1000).queue(function(next) {
-    $(this).removeClass(animation);
-    next();
-  });
-});
 
 
 </script>

@@ -3,6 +3,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 import random
+import os
 from flask import Flask, jsonify, request, render_template, url_for
 
 #To check if pixels are available
@@ -195,7 +196,7 @@ for i in range(1,len(dct)):
 #print(layout)
 #display(img)# for jupyter Notebooks
 #img.show() # for other IDE's
-img.save("D:\\Data Visualization project\\Project 1\\tagcloud\\WORD CLOUD\\static\\img.jpeg")
+img.save(os.getcwd()+"/static/img.jpeg")
 
 app = Flask(__name__)
 @app.route('/send', methods=['GET'])
