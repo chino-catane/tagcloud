@@ -30,4 +30,4 @@ python project1.py
 * If you want to re-run the code, run the code on the command prompt again and press Ctrl+Shft+R on the http://127.0.0.1:5000/fetch
 
 ## Preview of the webpage
-![Snapshot of the webpage](ss.PNG)
+![Snapshot of the webpage](ss1.PNG)
