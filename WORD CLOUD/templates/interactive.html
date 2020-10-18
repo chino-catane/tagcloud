@@ -1,19 +1,117 @@
 <!DOCTYPE html>
 <html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css">
+<style>
+div.heading1{
+	text-align: center;
+	color: White;
+	text-shadow: 2px 2px 4px #000000;
+	height: 100px;
+	weight: 1000px;
+	background-image: linear-gradient(to right, rgba(255,0,0,0), rgba(255,0,0,1));
+	background-repeat: None
+	background-size: 957px 100px
+}
+img.a{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border:5px solid #555;
+}
+html {
+  box-sizing: border-box;
+}
 
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+.column {
+  float: left;
+  width: 25%;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+@media screen and (max-width: 650px) {
+  .column {
+    width: 100%;
+    display: block;
+  }
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.container {
+  padding: 0 16px;
+}
+
+.container::after, .row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+body{
+	background-color: Antique White;
+}
+
+</style>
 <body>
-<h2>Interactive Data Visualization</h2>
-<p>Click on the word to direct to Wikipedia page:</p>
-
-<img src="{{url_for('static', filename='img.jpeg')}}" alt="Workplace" usemap="#workmap" width="800" height="800">
+<div class="heading1">
+<h1>Interactive Word Cloud</h1>
+<p>Hover on the word to redirect to the corresponding Wikipedia page</p>
+</div>
+<br>
+<br>
+<img class='a animated pulse' src="{{url_for('static', filename='img.jpeg')}}" alt="Workplace" class="center" usemap="#workmap" width="900" height="900">
 
 <map name="workmap" id="workmap">
-  <!--<area shape="rect" coords="316,353,483,446" alt="Computer" href="https://en.wikipedia.org/wiki/Visualization" target="_blank">https://en.wikipedia.org/wiki/Visualization>
-  <area shape="rect" coords="3,41,789,183" alt="Computer" href="https://en.wikipedia.org/wiki/Visualization">
-  <area shape="rect" coords="489,439,670,499" alt="Computer" href="https://en.wikipedia.org/wiki/graphics">
-  <area shape="rect" coords="95,436,150,447" alt="Computer" href="https://en.wikipedia.org/wiki/common">
-  !-->
 </map>
+<br>
+<br>
+<p style="font-family:Times New Roman;font-size:20px">
+Technologies used: Python, HTML, CSS 
+</p>
+<p style="font-family:Times New Roman;font-size:20px">
+Thank you for checking out our Word Cloud :)
+</p>
+<p style="font-family:Arial Black;font-size:20px">
+Our Team:
+</p>
+<div class="row">
+  <div class="column">
+    <div class="card">
+      <img src="{{url_for('static', filename='Chino.png')}}" alt="Chino" style="width:50%">
+      <div class="container">
+        <h2>Luis(Chino) Catane</h2>
+ 
+      </div>
+    </div>
+  </div>
+
+  <div class="column">
+    <div class="card">
+      <img src="{{url_for('static', filename='Sean.jpg')}}" alt="Sean" style="width:50%" >
+      <div class="container">
+        <h2>Sean Marcus Pereira</h2>
+     
+      </div>
+    </div>
+  </div>
+  
+  <div class="column">
+    <div class="card">
+      <img src="{{url_for('static', filename='Sushmitha.jpg')}}" alt="Sushmitha" style="width:50%">
+      <div class="container">
+        <h2>Sushmitha Pasala</h2>
+        
+    </div>
+  </div>
+</div>
+
 </body>
 <script>
 
@@ -22,7 +120,7 @@ fetch('/send')
         return response.json(); 
     })
     .then(function (layout) {
-        
+     console.log(layout)   
 		var p=document.getElementById("workmap")
 for (var i=0;i<layout.length;i++)
 {
@@ -35,7 +133,13 @@ for (var i=0;i<layout.length;i++)
 	p.appendChild(area)
 }
 		});
-//var a=[[316,353,483,446,"data"],[3,41,789,183,"visualization"],[489,439,670,499,"graphics"],[95,436,150,447,"common"]]
+$(".a").click(function() {
+  var animation = $(this).attr("data-animation");
+  $(this).addClass(animation).delay(1000).queue(function(next) {
+    $(this).removeClass(animation);
+    next();
+  });
+});
 
 
 </script>

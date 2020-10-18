@@ -16,7 +16,7 @@ def check_if_possible(pixels,x_coordinate,y_coordinate,w,h):
 
 #set the used pixels
 def generate_random_color():
-    color=['blue','magenta','cyan','red','grey']
+    color=['blue','magenta','red','green','violet','purple','indigo','orange','brown','black']
     return random.choice(color)
     
 def set_pixels(pixels,width,height,X,Y,k):
@@ -121,13 +121,13 @@ def set_pixels_rotate(pixels,width,height,X,Y,k):
 #WordCloud
 if len(dct)<1:
     print("Enter a text with atleast one word")
-X=800
-Y=800
+X=900
+Y=900
 pixels=[[-1 for _ in range(X)]for _ in range(Y)]
 txt=dct[0][0]
 font_size=183
 layout=[[0 for _ in range(5)]for _ in range(len(dct))]
-fnt = ImageFont.truetype("times.ttf",font_size)
+fnt = ImageFont.truetype("FORTE.ttf",font_size)
 w,h=get_text_dimensions(txt, fnt)
 img = Image.new('RGB', (X, Y), color = 'white')
 draw = ImageDraw.Draw(img)
@@ -146,7 +146,7 @@ for i in range(1,len(dct)):
     #font_size=10*dct[i][1]+25
     if font_size<=10:
         font_size=15
-    fnt = ImageFont.truetype("times.ttf",font_size)
+    fnt = ImageFont.truetype("FORTE.ttf",font_size)
     w,h=get_text_dimensions(txt, fnt)
     hit=0
     flag=0
@@ -160,16 +160,15 @@ for i in range(1,len(dct)):
                 flag=1
                 break
             hit+=1
-#         if flag==1:
-#             continue
-        draw.text((x_coordinate, y_coordinate),txt,fill=generate_random_color() ,font=fnt)
-        layout[i][0]=x_coordinate
-        layout[i][1]=y_coordinate
-        layout[i][2]=x_coordinate+h
-        layout[i][3]=y_coordinate+w
-        layout[i][4]=dct[i][0]
-        pixels=set_pixels_rotate(pixels,h,w,x_coordinate, y_coordinate,i)
-        continue
+        if flag==1:
+            draw.text((x_coordinate, y_coordinate),txt,fill=generate_random_color() ,font=fnt)
+            layout[i][0]=x_coordinate
+            layout[i][1]=y_coordinate
+            layout[i][2]=x_coordinate+h
+            layout[i][3]=y_coordinate+w
+            layout[i][4]=dct[i][0]
+            pixels=set_pixels_rotate(pixels,h,w,x_coordinate, y_coordinate,i)
+            continue
     flag=0
     hit=0
     while flag!=1:
@@ -180,22 +179,23 @@ for i in range(1,len(dct)):
             flag=1
             break
         hit+=1     
-#     if flag==1:
-#         continue
-    layout[i][0]=x_coordinate
-    layout[i][1]=y_coordinate
-    layout[i][2]=x_coordinate+w
-    layout[i][3]=y_coordinate+h
-    layout[i][4]=dct[i][0]
-    draw.text((x_coordinate, y_coordinate),txt,fill= generate_random_color(),font=fnt)
-    pixels=set_pixels(pixels,w,h,x_coordinate, y_coordinate,i)
+    if flag==1:
+        
+        layout[i][0]=x_coordinate
+        layout[i][1]=y_coordinate
+        layout[i][2]=x_coordinate+w
+        layout[i][3]=y_coordinate+h
+        layout[i][4]=dct[i][0]
+        draw.text((x_coordinate, y_coordinate),txt,fill= generate_random_color(),font=fnt)
+        pixels=set_pixels(pixels,w,h,x_coordinate, y_coordinate,i)
+        continue
 
 
 #print("**********************************          WORD CLOUD GENERTOR      ***************************************")
 #print(layout)
 #display(img)# for jupyter Notebooks
 #img.show() # for other IDE's
-img.save("D:\Data Visualization project\WORD CLOUD\static\img.jpeg")
+img.save("D:\\Data Visualization project\\Project 1\\tagcloud\\WORD CLOUD\\static\\img.jpeg")
 
 app = Flask(__name__)
 @app.route('/send', methods=['GET'])
