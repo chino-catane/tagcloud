@@ -1,7 +1,6 @@
 Mac
 ---
 1. press [command + space bar] to open a search bar and type "terminal"
-2. download the pip installer by copying the following into the terminal :
-   curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-3. after the download is complete, install pip with the command :
-   python3 get-pip.py 
+2. install pip with command : sudo easy_install pip
+3. install Flask with command: sudo pip install Flask
+4. install Python Image Library with command: sudo pip install pillow

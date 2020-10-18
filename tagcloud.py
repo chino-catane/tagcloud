@@ -143,7 +143,7 @@ class TagCloud(object) :
         if len(self._grams) < 1 :
             print("ERROR: no text")
         # call up a canvas and pen
-        img = Image.new('RGB', (self._wide, self._hi))
+        img = Image.new('RGB', (self._wide, self._hi), color='white')
         draw = ImageDraw.Draw(img)
         # layout first gram
         txt = self._grams[0]
