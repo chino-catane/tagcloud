@@ -29,5 +29,5 @@ python project1.py
 * A particular word can be browsed by clicking on it.
 * If you want to re-run the code, run the code on the command prompt again and press Ctrl+Shft+R on the http://127.0.0.1:5000/fetch
 
-##Preview of the webpage
+## Preview of the webpage
 ![Snapshot of the webpage](ss.png)
