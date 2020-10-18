@@ -103,6 +103,7 @@ for g in grams :
         dct[g] += 1
 dct=list([key,value] for key,value in dct.items())
 dct.sort(key=lambda x:x[1],reverse=True)
+frequencies=[value[1] for value in dct]
 maximum=dct[0][1]
 for i in range(len(dct)):
     dct[i][1]=(dct[i][1]*100)//maximum
@@ -126,8 +127,8 @@ X=900
 Y=900
 pixels=[[-1 for _ in range(X)]for _ in range(Y)]
 txt=dct[0][0]
-font_size=183
-layout=[[0 for _ in range(5)]for _ in range(len(dct))]
+font_size=dct[0][1]*100//maximum
+layout=[[0 for _ in range(6)]for _ in range(len(dct))]
 fnt = ImageFont.truetype("FORTE.ttf",font_size)
 w,h=get_text_dimensions(txt, fnt)
 img = Image.new('RGB', (X, Y), color = 'white')
@@ -139,6 +140,7 @@ layout[0][1]=Y//2-1-h//2
 layout[0][2]=X//2-1-w//2+w
 layout[0][3]=Y//2-1-h//2+h
 layout[0][4]=dct[0][0]
+layout[0][5]=frequencies[0]
 pixels=set_pixels(pixels,w,h,X//2-1-w//2, Y//2-1-h//2,0)
 for i in range(1,len(dct)):
     flag=0
@@ -168,6 +170,7 @@ for i in range(1,len(dct)):
             layout[i][2]=x_coordinate+h
             layout[i][3]=y_coordinate+w
             layout[i][4]=dct[i][0]
+            layout[i][5]=frequencies[i]
             pixels=set_pixels_rotate(pixels,h,w,x_coordinate, y_coordinate,i)
             continue
     flag=0
@@ -187,6 +190,7 @@ for i in range(1,len(dct)):
         layout[i][2]=x_coordinate+w
         layout[i][3]=y_coordinate+h
         layout[i][4]=dct[i][0]
+        layout[i][5]=frequencies[i]
         draw.text((x_coordinate, y_coordinate),txt,fill= generate_random_color(),font=fnt)
         pixels=set_pixels(pixels,w,h,x_coordinate, y_coordinate,i)
         continue

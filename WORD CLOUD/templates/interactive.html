@@ -59,7 +59,7 @@ body{
 </div>
 <br>
 <br>
-<img class='a animated pulse' src="{{url_for('static', filename='img.jpeg')}}" alt="Workplace" class="center" usemap="#workmap" width="900" height="900">
+<img class='a animated pulse' src="{{url_for('static', filename='img.jpeg')}}" alt="Workplace" class="center" usemap="#workmap" width="1000" height="1000">
 
 <map name="workmap" id="workmap">
 </map>
@@ -121,6 +121,7 @@ for (var i=0;i<layout.length;i++)
 	area.setAttribute("shape","rect");
 	area.setAttribute("coords",""+layout[i][0]+","+layout[i][1]+","+layout[i][2]+","+layout[i][3]);
 	area.setAttribute("alt",layout[i][4])
+	area.setAttribute("title","Frequency: "+layout[i][5])
 	area.setAttribute("href","https://en.wikipedia.org/wiki/"+layout[i][4]);
 	area.setAttribute("target","_blank")
 	p.appendChild(area)
